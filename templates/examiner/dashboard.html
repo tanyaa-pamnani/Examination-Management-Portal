@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Examiner Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Examiner Dashboard</h1>
+
+    <h2>Welcome, {{ current_user.name }}!</h2>
+
+    <p>Your account has been approved by the Admin.</p>
+
+    <h3>Examination Management</h3>
+
+    <a href="{{ url_for('examiner_slots') }}">
+        View Assigned Examinations and Manage Slots
+    </a>
+
+    <br><br>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+</body>
+
+</html>

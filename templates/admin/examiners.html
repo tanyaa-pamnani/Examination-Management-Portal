@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Manage Examiners</title>
+</head>
+
+<body>
+
+    <h1>Examiner Management</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Qualification</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+
+        {% for examiner in examiners %}
+
+        <tr>
+            <td>{{ examiner.name }}</td>
+            <td>{{ examiner.email }}</td>
+            <td>{{ examiner.examiner_profile.department }}</td>
+            <td>{{ examiner.examiner_profile.qualification }}</td>
+            <td>{{ examiner.examiner_profile.phone }}</td>
+
+            <td>
+                {% if examiner.active %}
+                Approved
+                {% else %}
+                Pending / Deactivated
+                {% endif %}
+            </td>
+
+            <td>
+
+                {% if not examiner.active %}
+
+                <form method="POST" action="{{ url_for('approve_examiner', user_id=examiner.id) }}">
+
+                    <button type="submit">Approve</button>
+
+                </form>
+
+                {% else %}
+
+                <form method="POST" action="{{ url_for('deactivate_examiner', user_id=examiner.id) }}">
+
+                    <button type="submit">Deactivate</button>
+
+                </form>
+
+                {% endif %}
+
+            </td>
+        </tr>
+
+        {% else %}
+
+        <tr>
+            <td colspan="7">No examiners registered yet.</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+
+</body>
+
+</html>

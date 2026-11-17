@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Schedule Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
+        h1, h2 { color: #173b63; }
+        .message { padding: 9px; margin: 8px 0; background: #eef4fa; border-radius: 5px; }
+        .slot { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 18px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { border: 1px solid #ccc; padding: 9px; text-align: left; vertical-align: top; }
+        th { background: #edf2f7; }
+        input, select, button { padding: 7px; margin: 4px 2px; }
+        button { cursor: pointer; }
+        .muted { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Admin Schedule and Booking Management</h1>
+    <p><a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a></p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="message">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <h2>All Examination Slots</h2>
+    {% if slots %}
+      {% for slot in slots %}
+        <section class="slot">
+          <h3>{{ slot.examination.exam_name }}</h3>
+          <p>
+            <strong>Date:</strong> {{ slot.slot_date }} |
+            <strong>Time:</strong> {{ slot.start_time }}–{{ slot.end_time }} |
+            <strong>Capacity:</strong> {{ slot.bookings|selectattr('status', 'equalto', 'active')|list|length }}/{{ slot.capacity }}
+          </p>
+          <p><strong>Current examiner:</strong> {{ slot.examiner.name if slot.examiner else 'Not assigned' }}</p>
+
+          <form method="POST" action="{{ url_for('admin_change_slot_examiner', slot_id=slot.id) }}">
+            <label>Change examiner:</label>
+            <select name="examiner_id" required>
+              <option value="">Select examiner</option>
+              {% for examiner in active_examiners %}
+                {% if examiner.id != slot.examiner_id %}
+                  <option value="{{ examiner.id }}">{{ examiner.name }} ({{ examiner.email }})</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <button type="submit">Update Examiner</button>
+          </form>
+
+          <h4>Bookings</h4>
+          {% set active_bookings = slot.bookings|selectattr('status', 'equalto', 'active')|list %}
+          {% if slot.bookings %}
+            <table>
+              <tr>
+                <th>Student</th><th>Email</th><th>Status</th><th>Reschedule</th>
+              </tr>
+              {% for booking in slot.bookings|sort(attribute='booked_at', reverse=True) %}
+                <tr>
+                  <td>{{ booking.student.name if booking.student else 'Unknown' }}</td>
+                  <td>{{ booking.student.email if booking.student else '-' }}</td>
+                  <td>{{ booking.status }}</td>
+                  <td>
+                    {% if booking.status == 'active' %}
+                      <form method="POST" action="{{ url_for('admin_reschedule_booking', booking_id=booking.id) }}">
+                        <select name="new_slot_id" required>
+                          <option value="">Choose another slot</option>
+                          {% for other_slot in slots %}
+                            {% if other_slot.examination_id == booking.examination_id and other_slot.id != slot.id %}
+                              <option value="{{ other_slot.id }}">
+                                {{ other_slot.slot_date }} | {{ other_slot.start_time }}–{{ other_slot.end_time }}
+                                | {{ other_slot.examiner.name if other_slot.examiner else 'No examiner' }}
+                              </option>
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                        <button type="submit">Reschedule</button>
+                      </form>
+                    {% else %}
+                      <span class="muted">No action for cancelled booking</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% else %}
+            <p class="muted">No students have booked this slot yet.</p>
+          {% endif %}
+        </section>
+      {% endfor %}
+    {% else %}
+      <p>No examination slots have been created yet.</p>
+    {% endif %}
+</body>
+</html>

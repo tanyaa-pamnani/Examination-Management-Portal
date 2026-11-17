@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Examination Bookings</title>
+</head>
+
+<body>
+    <h1>My Examination Bookings</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Examiner</th>
+            <th>Booking Status</th>
+            <th>Booked At</th>
+            <th>Action</th>
+        </tr>
+
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.examination.exam_name }}</td>
+            <td>{{ booking.examination.course.course_code }}</td>
+            <td>{{ booking.slot.slot_date }}</td>
+            <td>{{ booking.slot.start_time }} - {{ booking.slot.end_time }}</td>
+            <td>{{ booking.slot.examiner.name }}</td>
+            <td>{{ booking.status|capitalize }}</td>
+            <td>{{ booking.booked_at.strftime("%d-%m-%Y %I:%M %p") }}</td>
+            <td>
+                {% if booking.status == "active" %}
+                <form method="POST" action="{{ url_for('cancel_booking', booking_id=booking.id) }}">
+                    <button type="submit">Cancel Booking</button>
+                </form>
+                {% elif booking.cancelled_at %}
+                Cancelled on {{ booking.cancelled_at.strftime("%d-%m-%Y %I:%M %p") }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8">You have not made any bookings yet.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p>Cancellation is allowed until 24 hours before the slot begins.</p>
+
+    <br>
+    <a href="{{ url_for('student_exams') }}">Browse Examination Slots</a>
+    <br><br>
+    <a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a>
+    <br><br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+
+</html>

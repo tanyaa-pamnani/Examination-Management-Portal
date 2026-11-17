@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluate Student</title>
+</head>
+<body>
+    <h1>Evaluate Student</h1>
+    <p><strong>Student:</strong> {{ booking.student.name }} ({{ booking.student.email }})</p>
+    <p><strong>Examination:</strong> {{ booking.examination.exam_name }}</p>
+    <p><strong>Maximum examination marks:</strong> {{ booking.examination.max_marks }}</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <h2>Marking Criteria</h2>
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>Criterion</th>
+                <th>Description</th>
+                <th>Maximum Marks</th>
+                <th>Marks Awarded</th>
+            </tr>
+            {% for rubric in rubrics %}
+            <tr>
+                <td>{{ rubric.criterion }}</td>
+                <td>{{ rubric.description or "-" }}</td>
+                <td>{{ rubric.max_marks }}</td>
+                <td>
+                    <input
+                        type="number"
+                        name="score_{{ rubric.id }}"
+                        min="0"
+                        max="{{ rubric.max_marks }}"
+                        required
+                        value="{% if evaluation %}{% for score in evaluation.scores %}{% if score.rubric_id == rubric.id %}{{ score.marks_awarded }}{% endif %}{% endfor %}{% endif %}"
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h3>Remarks / Feedback</h3>
+        <textarea name="remarks" rows="5" cols="60">{% if evaluation %}{{ evaluation.remarks or "" }}{% endif %}</textarea>
+        <br><br>
+        <button type="submit">Save Evaluation</button>
+    </form>
+
+    <p><a href="{{ url_for('examiner_bookings') }}">Back to Booked Students</a></p>
+</body>
+</html>

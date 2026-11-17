@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booked Students</title>
+</head>
+<body>
+    <h1>Students Booked in My Slots</h1>
+    <p>Only bookings for slots assigned to your examiner account are shown.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Student Name</th>
+            <th>Student Email</th>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Slot Date</th>
+            <th>Time</th>
+            <th>Booking Status</th>
+            <th>Evaluation</th>
+            <th>Action</th>
+        </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.student.name }}</td>
+            <td>{{ booking.student.email }}</td>
+            <td>{{ booking.examination.exam_name }}</td>
+            <td>{{ booking.examination.course.course_code }}</td>
+            <td>{{ booking.slot.slot_date }}</td>
+            <td>{{ booking.slot.start_time }} - {{ booking.slot.end_time }}</td>
+            <td>{{ booking.status|capitalize }}</td>
+            <td>
+                {% if booking.evaluation %}
+                    Submitted: {{ booking.evaluation.total_marks }}/{{ booking.examination.max_marks }}
+                {% else %}
+                    Not evaluated
+                {% endif %}
+            </td>
+            <td>
+                {% if booking.status == "active" %}
+                    <a href="{{ url_for('evaluate_booking', booking_id=booking.id) }}">
+                        {% if booking.evaluation %}Edit Evaluation{% else %}Evaluate Student{% endif %}
+                    </a>
+                {% else %}
+                    Not available for cancelled booking
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9">No students have booked your slots yet.</td></tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{{ url_for('examiner_slots') }}">Back to Slots</a></p>
+    <p><a href="{{ url_for('examiner_dashboard') }}">Examiner Dashboard</a></p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>

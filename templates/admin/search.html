@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Search and Filters</title>
+<style>
+body{font-family:Arial,sans-serif;margin:24px;color:#222}h1,h2{color:#173b63}
+form.filters{border:1px solid #ccc;padding:14px;border-radius:8px;margin:15px 0}
+input,select,button{padding:8px;margin:5px}table{border-collapse:collapse;width:100%;margin:10px 0 25px}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#edf2f7}
+.section{overflow-x:auto}.muted{color:#666}
+</style>
+</head>
+<body>
+<h1>Admin Search and Filtering</h1>
+<p><a href="{{ url_for('admin_dashboard') }}">← Admin Dashboard</a> |
+<a href="{{ url_for('admin_schedule') }}">Schedule Management</a> |
+<a href="{{ url_for('admin_booking_settings') }}">Booking Settings</a></p>
+
+<form class="filters" method="GET">
+<label>Search name, email, examination or course:
+<input type="text" name="q" value="{{ term }}" placeholder="Enter search text"></label>
+<label>User role:
+<select name="role"><option value="">All roles</option>
+<option value="student" {% if role=='student' %}selected{% endif %}>Student</option>
+<option value="examiner" {% if role=='examiner' %}selected{% endif %}>Examiner</option>
+<option value="admin" {% if role=='admin' %}selected{% endif %}>Admin</option></select></label>
+<label>Booking status:
+<select name="status"><option value="">All statuses</option>
+<option value="active" {% if status=='active' %}selected{% endif %}>Active</option>
+<option value="cancelled" {% if status=='cancelled' %}selected{% endif %}>Cancelled</option></select></label>
+<label>Slot date: <input type="date" name="slot_date" value="{{ slot_date }}"></label>
+<label>Examiner:
+<select name="examiner_id"><option value="">All examiners</option>
+{% for e in examiners %}<option value="{{ e.id }}" {% if examiner_id|string == e.id|string %}selected{% endif %}>{{ e.name }}</option>{% endfor %}
+</select></label>
+<button type="submit">Apply Filters</button>
+<a href="{{ url_for('admin_search') }}">Clear</a>
+</form>
+
+<div class="section"><h2>Users (up to 100)</h2>
+<table><tr><th>Name</th><th>Email</th><th>Role</th><th>Active</th></tr>
+{% for u in users %}<tr><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.role }}</td><td>{{ 'Yes' if u.active else 'No' }}</td></tr>
+{% else %}<tr><td colspan="4">No matching users.</td></tr>{% endfor %}</table></div>
+
+<div class="section"><h2>Examinations (up to 100)</h2>
+<table><tr><th>Examination</th><th>Course</th><th>Date</th><th>Maximum Marks</th></tr>
+{% for e in examinations %}<tr><td>{{ e.exam_name }}</td><td>{{ e.course.course_name }}</td><td>{{ e.exam_date }}</td><td>{{ e.max_marks }}</td></tr>
+{% else %}<tr><td colspan="4">No matching examinations.</td></tr>{% endfor %}</table></div>
+
+<div class="section"><h2>Slots (up to 100)</h2>
+<table><tr><th>Examination</th><th>Date</th><th>Time</th><th>Examiner</th><th>Capacity</th></tr>
+{% for s in slots %}<tr><td>{{ s.examination.exam_name }}</td><td>{{ s.slot_date }}</td><td>{{ s.start_time }}–{{ s.end_time }}</td><td>{{ s.examiner.name }}</td><td>{{ s.capacity }}</td></tr>
+{% else %}<tr><td colspan="5">No matching slots.</td></tr>{% endfor %}</table></div>
+
+<div class="section"><h2>Bookings (up to 100)</h2>
+<table><tr><th>Student</th><th>Email</th><th>Examination</th><th>Slot</th><th>Examiner</th><th>Status</th></tr>
+{% for b in bookings %}<tr><td>{{ b.student.name }}</td><td>{{ b.student.email }}</td><td>{{ b.examination.exam_name }}</td><td>{{ b.slot.slot_date }} {{ b.slot.start_time }}–{{ b.slot.end_time }}</td><td>{{ b.slot.examiner.name }}</td><td>{{ b.status }}</td></tr>
+{% else %}<tr><td colspan="6">No matching bookings.</td></tr>{% endfor %}</table></div>
+</body></html>

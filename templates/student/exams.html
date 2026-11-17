@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Examination Slots</title>
+</head>
+<body>
+    <h1>Available Examination Slots</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <p>Choose an available slot for an examination.</p>
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Examiner</th>
+            <th>Available Seats</th>
+            <th>Action</th>
+        </tr>
+
+        {% for slot in slots %}
+            {% set booked = booking_counts[slot.id] %}
+            {% set remaining = slot.capacity - booked %}
+            {% set slot_start = slot.slot_date ~ " " ~ slot.start_time %}
+
+            <tr>
+                <td>{{ slot.examination.exam_name }}</td>
+                <td>{{ slot.examination.course.course_code }}</td>
+                <td>{{ slot.slot_date }}</td>
+                <td>{{ slot.start_time }} - {{ slot.end_time }}</td>
+                <td>{{ slot.examiner.name }}</td>
+                <td>
+                    {% if remaining > 0 %}
+                        {{ remaining }} / {{ slot.capacity }}
+                    {% else %}
+                        FULL
+                    {% endif %}
+                </td>
+                <td>
+                    {% if slot.examination_id in active_exam_ids %}
+                        Already booked
+                    {% elif remaining <= 0 %}
+                        Unavailable
+                    {% elif slot_start <= now %}
+                        Slot passed
+                    {% else %}
+                        <form method="POST"
+                              action="{{ url_for('book_exam_slot', slot_id=slot.id) }}">
+                            <button type="submit">Book Slot</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">There are no upcoming examination slots available.</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('student_bookings') }}">My Bookings and History</a>
+    <br><br>
+    <a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a>
+    <br><br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

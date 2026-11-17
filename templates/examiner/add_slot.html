@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Create Examination Slot</title>
+</head>
+
+<body>
+
+    <h1>Create Examination Slot</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <label>Select Examination:</label>
+
+        <select name="examination_id" required>
+            <option value="">Choose an examination</option>
+
+            {% for assignment in assignments %}
+            <option value="{{ assignment.examination.id }}">
+                {{ assignment.examination.exam_name }}
+                - {{ assignment.examination.exam_date }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label>Slot Date:</label>
+        <input type="date" name="slot_date" required>
+
+        <br><br>
+
+        <label>Start Time:</label>
+        <input type="time" name="start_time" required>
+
+        <br><br>
+
+        <label>End Time:</label>
+        <input type="time" name="end_time" required>
+
+        <br><br>
+
+        <label>Maximum Students:</label>
+        <input type="number" name="capacity" min="1" required>
+
+        <br><br>
+
+        <button type="submit">Create Slot</button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ url_for('examiner_slots') }}">Back to My Slots</a>
+
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Examination Slots</title>
+</head>
+
+<body>
+
+    <h1>My Examination Slots</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
+    <h2>My Assigned Examinations</h2>
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Date</th>
+        </tr>
+
+        {% for assignment in assignments %}
+        <tr>
+            <td>{{ assignment.examination.exam_name }}</td>
+            <td>{{ assignment.examination.course.course_code }}</td>
+            <td>{{ assignment.examination.exam_date }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3">No examinations assigned yet.</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{{ url_for('add_exam_slot') }}">Create New Slot</a>
+    <br><br>
+    <a href="{{ url_for('examiner_bookings') }}">View Booked Students</a>
+    <hr>
+
+    <h2>My Created Slots</h2>
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>Examination</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Capacity</th>
+            <th>Action</th>
+        </tr>
+
+        {% for slot in slots %}
+        <tr>
+            <td>{{ slot.examination.exam_name }}</td>
+            <td>{{ slot.slot_date }}</td>
+            <td>{{ slot.start_time }}</td>
+            <td>{{ slot.end_time }}</td>
+            <td>{{ slot.capacity }}</td>
+
+            <td>
+                <form method="POST" action="{{ url_for('delete_exam_slot', slot_id=slot.id) }}">
+
+                    <button type="submit">Delete</button>
+
+                </form>
+            </td>
+        </tr>
+
+        {% else %}
+        <tr>
+            <td colspan="6">You have not created any slots yet.</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{{ url_for('examiner_dashboard') }}">Back to Dashboard</a>
+
+    <br><br>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+</body>
+
+</html>

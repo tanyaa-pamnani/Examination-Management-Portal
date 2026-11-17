@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Assign Examiners</title>
+</head>
+
+<body>
+
+    <h1>Assign Examiners to Examinations</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
+    <h2>New Assignment</h2>
+
+    <form method="POST">
+
+        <label>Select Examination:</label>
+
+        <select name="examination_id" required>
+            <option value="">Choose an examination</option>
+
+            {% for exam in examinations %}
+            <option value="{{ exam.id }}">
+                {{ exam.exam_name }} - {{ exam.course.course_code }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label>Select Approved Examiner:</label>
+
+        <select name="examiner_id" required>
+            <option value="">Choose an examiner</option>
+
+            {% for examiner in examiners %}
+            <option value="{{ examiner.id }}">
+                {{ examiner.name }} - {{ examiner.email }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <button type="submit">Assign Examiner</button>
+
+    </form>
+
+    <hr>
+
+    <h2>Current Assignments</h2>
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Examiner</th>
+            <th>Action</th>
+        </tr>
+
+        {% for assignment in assignments %}
+        <tr>
+            <td>{{ assignment.examination.exam_name }}</td>
+            <td>{{ assignment.examination.course.course_code }}</td>
+            <td>{{ assignment.examiner.name }}</td>
+
+            <td>
+                <form method="POST" action="{{ url_for('delete_assignment', assignment_id=assignment.id) }}">
+
+                    <button type="submit">Remove Assignment</button>
+
+                </form>
+            </td>
+        </tr>
+
+        {% else %}
+        <tr>
+            <td colspan="4">No examiners have been assigned yet.</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+
+</body>
+
+</html>

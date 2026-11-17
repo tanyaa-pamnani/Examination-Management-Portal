@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Examination Results</title>
+</head>
+<body>
+    <h1>My Examination Results and Feedback</h1>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Examination</th>
+            <th>Course</th>
+            <th>Examiner</th>
+            <th>Marks</th>
+            <th>Feedback</th>
+            <th>Evaluated At</th>
+        </tr>
+        {% for booking in bookings %}
+            {% if booking.evaluation %}
+            <tr>
+                <td>{{ booking.examination.exam_name }}</td>
+                <td>{{ booking.examination.course.course_code }}</td>
+                <td>{{ booking.evaluation.examiner.name }}</td>
+                <td>{{ booking.evaluation.total_marks }} / {{ booking.examination.max_marks }}</td>
+                <td>{{ booking.evaluation.remarks or "No remarks provided." }}</td>
+                <td>{{ booking.evaluation.evaluated_at.strftime("%d-%m-%Y %I:%M %p") }}</td>
+            </tr>
+            {% endif %}
+        {% else %}
+            <tr><td colspan="6">No results are available yet.</td></tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>

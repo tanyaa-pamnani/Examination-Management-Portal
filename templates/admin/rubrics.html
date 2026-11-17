@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Examination Rubrics</title>
+</head>
+<body>
+    <h1>Examination Rubrics</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <h2>Add Marking Criterion</h2>
+    <form method="POST" action="{{ url_for('add_rubric') }}">
+        <label>Examination:</label>
+        <select name="examination_id" required>
+            <option value="">Select examination</option>
+            {% for exam in examinations %}
+                <option value="{{ exam.id }}">{{ exam.exam_name }} ({{ exam.max_marks }} marks)</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label>Criterion:</label>
+        <input type="text" name="criterion" maxlength="150" required>
+        <br><br>
+
+        <label>Description:</label>
+        <textarea name="description"></textarea>
+        <br><br>
+
+        <label>Maximum Marks:</label>
+        <input type="number" name="max_marks" min="1" required>
+        <br><br>
+
+        <button type="submit">Add Criterion</button>
+    </form>
+
+    <hr>
+    <h2>Existing Rubrics</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Examination</th>
+            <th>Criterion</th>
+            <th>Description</th>
+            <th>Maximum Marks</th>
+            <th>Action</th>
+        </tr>
+        {% for rubric in rubrics %}
+        <tr>
+            <td>{{ rubric.examination.exam_name }}</td>
+            <td>{{ rubric.criterion }}</td>
+            <td>{{ rubric.description or "-" }}</td>
+            <td>{{ rubric.max_marks }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('delete_rubric', rubric_id=rubric.id) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No rubric criteria created yet.</td></tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a></p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>
